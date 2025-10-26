@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JNPR Challenge System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 50%, #16213e 100%);
+            color: #00ff00;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 25px;
+            border: 2px solid #00ff00;
+            border-radius: 15px;
+            background: rgba(0, 255, 0, 0.05);
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .dashboard-section {
+            background: rgba(0, 255, 0, 0.05);
+            border: 2px solid #00ff00;
+            border-radius: 15px;
+            padding: 25px;
+        }
+
+        .section-title {
+            color: #ff6b6b;
+            font-size: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            border-bottom: 1px solid #ff6b6b;
+            padding-bottom: 10px;
+        }
+
+        .leaderboard {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #00ff00;
+            transition: all 0.3s ease;
+        }
+
+        .leaderboard-item:hover {
+            background: rgba(0, 255, 0, 0.1);
+            transform: translateX(5px);
+        }
+
+        .leaderboard-rank {
+            color: #ffaa00;
+            font-weight: bold;
+            font-size: 18px;
+            min-width: 40px;
+        }
+
+        .leaderboard-name {
+            flex: 1;
+            margin: 0 15px;
+            color: #4ecdc4;
+            font-weight: bold;
+        }
+
+        .leaderboard-time {
+            color: #ff6b6b;
+            font-size: 14px;
+        }
+
+        .contact-form {
+            margin: 20px 0;
+        }
+
+        .form-group {
+            margin: 15px 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4ecdc4;
+            font-weight: bold;
+        }
+
+        .form-group label .required {
+            color: #ff6b6b;
+        }
+
+        .form-input {
+            width: 100%;
+            background: transparent;
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        .form-input.error {
+            border-color: #ff6b6b;
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+        }
+
+        .form-hint {
+            font-size: 11px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .contact-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .contact-item {
+            background: rgba(78, 205, 196, 0.1);
+            border: 1px solid #4ecdc4;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .contact-name {
+            color: #4ecdc4;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .contact-info {
+            color: #888;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .contact-detail {
+            display: flex;
+            justify-content: space-between;
+            margin: 3px 0;
+        }
+
+        .contact-hidden {
+            color: #666;
+            font-style: italic;
+        }
+
+        .announcement-banner {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px dashed #ff6b6b;
+            border-radius: 10px;
+            animation: glow 3s infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(255, 107, 107, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(255, 107, 107, 0.8); }
+        }
+
+        .level-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 255, 0, 0.1);
+            padding: 10px 20px;
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            z-index: 1000;
+        }
+
+        .challenge-container {
+            display: none;
+        }
+
+        .challenge-container.active {
+            display: block;
+        }
+
+        .game-area {
+            background: rgba(0, 255, 0, 0.05);
+            border: 2px solid #00ff00;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+
+        .game-title {
+            color: #ff6b6b;
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .game-instruction {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid #ff6b6b;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            font-style: italic;
+        }
+
+        .terminal {
+            background: #000;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .hex-display {
+            background: #111;
+            border: 1px solid #555;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: monospace;
+            font-size: 12px;
+            color: #00ffff;
+        }
+
+        .cipher-wheel {
+            width: 250px;
+            height: 250px;
+            margin: 20px auto;
+            position: relative;
+            background: conic-gradient(from 0deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ff6b6b);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .wheel-center {
+            width: 150px;
+            height: 150px;
+            background: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            border: 3px solid #00ff00;
+        }
+
+        .blockchain-chain {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding: 20px 0;
+        }
+
+        .block {
+            min-width: 150px;
+            height: 120px;
+            background: linear-gradient(135deg, #2c1810, #3d2314);
+            border: 2px solid #ffaa00;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .block.mined {
+            border-color: #00ff00;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+        }
+
+        .input-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .secret-input {
+            background: transparent;
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            padding: 15px 20px;
+            font-size: 18px;
+            font-family: 'Courier New', monospace;
+            border-radius: 5px;
+            margin: 0 10px;
+            width: 150px;
+            text-transform: uppercase;
+        }
+
+        .btn {
+            background: transparent;
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            padding: 15px 30px;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #00ff00;
+            color: #000;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn.primary {
+            background: #ff6b6b;
+            border-color: #ff6b6b;
+            color: #fff;
+        }
+
+        .btn.primary:hover {
+            background: #ff5252;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .modal {
+            background: linear-gradient(135deg, #1a0a2e, #16213e);
+            border: 2px solid #00ff00;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal h2 {
+            color: #ff6b6b;
+            margin-bottom: 20px;
+        }
+
+        .nickname-input {
+            background: transparent;
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            padding: 15px 20px;
+            font-size: 24px;
+            font-family: 'Courier New', monospace;
+            border-radius: 5px;
+            width: 200px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .navigation {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .nav-arrow {
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-arrow:hover {
+            background: rgba(0, 255, 0, 0.2);
+        }
+
+        .share-section {
+            background: rgba(255, 170, 0, 0.1);
+            border: 2px dashed #ffaa00;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .share-link {
+            background: #000;
+            border: 1px solid #ffaa00;
+            color: #ffaa00;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            width: 100%;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard { grid-template-columns: 1fr; }
+            .container { padding: 10px; }
+            .cipher-wheel { width: 200px; height: 200px; }
+            .wheel-center { width: 120px; height: 120px; }
+            .blockchain-chain { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div id="homepage" class="page active">
+        <div class="container">
+            <div class="header">
+                <h1>🎯 JNPR Challenge Dashboard</h1>
+                <p>"Anonymous Challenge • Team Recruitment • Innovation Hub"</p>
+            </div>
+
+            <div class="announcement-banner">
+                📡 ANNOUNCEMENT: We are forming an elite team for developing a revolutionary 
+                Wireless Frequency Communication Project! Join the innovation! 🚀
+            </div>
+
+            <div class="dashboard">
+                <div class="dashboard-section">
+                    <div class="section-title">🏆 Anonymous Leaderboard</div>
+                    <div class="leaderboard" id="leaderboard"></div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn primary" onclick="startChallenge()">🎮 Start Challenge</button>
+                    </div>
+                </div>
+
+                <div class="dashboard-section">
+                    <div class="section-title">📝 Team Registration</div>
+                    
+                    <div class="contact-form">
+                        <div class="form-group">
+                            <label>Full Name: <span class="required">*</span></label>
+                            <input type="text" class="form-input" id="userName" placeholder="Enter your full name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>University Email: <span class="required">*</span></label>
+                            <input type="email" class="form-input" id="userEmail" placeholder="student@university.edu" required>
+                            <div class="form-hint">Use your official university email</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Student ID: <span class="required">*</span></label>
+                            <input type="text" class="form-input" id="userID" placeholder="e.g., 2021-123-456" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Phone Number: <span class="required">*</span></label>
+                            <input type="tel" class="form-input" id="userPhone" placeholder="+880 1XXX-XXXXXX" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Additional Contact (Optional):</label>
+                            <input type="text" class="form-input" id="userAdditional" placeholder="WhatsApp, Telegram, etc.">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Your Secret Key (if completed):</label>
+                            <input type="text" class="form-input" id="userKey" placeholder="Enter your challenge key">
+                        </div>
+                        
+                        <button class="btn" onclick="submitRegistration()">Register for Team</button>
+                    </div>
+
+                    <div class="contact-list" id="contactList"></div>
+                </div>
+            </div>
+
+            <div class="share-section">
+                <h3 style="color: #ffaa00; margin-bottom: 15px;">🔗 Share the Challenge</h3>
+                <p style="margin-bottom: 15px;">Found the solution? Help others join the team!</p>
+                <input type="text" class="share-link" id="shareLink" readonly>
+                <button class="btn" onclick="copyShareLink()">Copy Share Link</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="challenge" class="page">
+        <div class="level-indicator">
+            <span>Level: <span id="currentLevel">1</span>/3</span>
+        </div>
+
+        <div class="container">
+            <div class="header">
+                <h1>🔐 JNPR Anonymous Challenge</h1>
+                <p>"Prove your skills. Earn your place. Stay anonymous."</p>
+            </div>
+
+            <div id="level1" class="challenge-container active">
+                <div class="game-area">
+                    <div class="game-title">📡 Network Packet Analysis</div>
+                    <div class="game-instruction">
+                        Analyze this intercepted packet and find the hidden message!<br>
+                        <strong>Hint:</strong> Look for the X-Secret header in the hex dump.
+                    </div>
+                    <div class="hex-display">
+<strong>Hex Dump:</strong>
+6e 65 74 77 6f 72 6b
+
+<br>
+<strong>Hint: </strong>
+ASCII ! 
+
+                    </div>
+                    <div class="input-section">
+                        <p>Enter the first letter from X-Secret header:</p>
+                        <input type="text" class="secret-input" id="level1Input" placeholder="?" maxlength="1">
+                        <br>
+                        <button class="btn" onclick="checkLevel(1)">Submit Level 1</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="level2" class="challenge-container">
+                <div class="game-area">
+                    <div class="game-title">🎡 Cipher Wheel</div>
+                    <div class="game-instruction">
+                        Decode the encrypted message: <strong>FUBHEVGL</strong><br>
+                        Use ROT13 cipher (shift by 13 positions)<br>
+                        <strong>Hint:</strong> A→N, B→O, C→P... and vice versa
+                    </div>
+                    <div class="cipher-wheel" onclick="spinWheel()">
+                        <div class="wheel-center">
+                            <div style="color: #4ecdc4; font-size: 14px;">ROT</div>
+                            <div id="shiftValue" style="color: #00ff00; font-size: 20px;">13</div>
+                            <div style="color: #666; font-size: 10px; margin-top: 5px;">Click to spin</div>
+                        </div>
+                    </div>
+                    <div class="input-section">
+                        <p>First letter of the decoded word:</p>
+                        <input type="text" class="secret-input" id="level2Input" placeholder="?" maxlength="1">
+                        <br>
+                        <button class="btn" onclick="checkLevel(2)">Submit Level 2</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="level3" class="challenge-container">
+                <div class="game-area">
+                    <div class="game-title">⛓️ Blockchain Mining</div>
+                    <div class="game-instruction">
+                        Mine all 3 blocks to complete the blockchain!<br>
+                        <strong>Hint:</strong> Click each block to mine it. Answer is related to the technology itself.
+                    </div>
+                    <div class="blockchain-chain" id="blockchainChain">
+                        <div class="block" onclick="mineBlock(0)">
+                            <strong>Block #0</strong><br>
+                            <small>Genesis Block</small><br>
+                            <small style="color: #ffaa00;">Click to mine!</small>
+                        </div>
+                        <div class="block" onclick="mineBlock(1)">
+                            <strong>Block #1</strong><br>
+                            <small>Transaction Data</small><br>
+                            <small style="color: #ffaa00;">Click to mine!</small>
+                        </div>
+                        <div class="block" onclick="mineBlock(2)">
+                            <strong>Block #2</strong><br>
+                            <small>Final Block</small><br>
+                            <small style="color: #ffaa00;">Click to mine!</small>
+                        </div>
+                    </div>
+                    <div class="input-section">
+                        <p>Enter the letter revealed by completing the blockchain:</p>
+                        <input type="text" class="secret-input" id="level3Input" placeholder="?" maxlength="1">
+                        <br>
+                        <button class="btn" onclick="checkLevel(3)">Submit Final Level</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-arrow" onclick="nextLevel()" id="nextBtn">↓</button>
+            <button class="nav-arrow" onclick="prevLevel()" id="prevBtn" style="opacity: 0.3;">↑</button>
+        </div>
+    </div>
+
+    <div id="nicknameModal" class="modal-overlay" style="display: none;">
+        <div class="modal">
+            <h2>🎉 Challenge Complete!</h2>
+            <p style="margin: 20px 0;">You've successfully cracked all levels!</p>
+            <p style="margin: 20px 0;">Choose your anonymous codename (4 characters):</p>
+            <input type="text" class="nickname-input" id="nicknameInput" placeholder="ZTEx" maxlength="4">
+            <br><br>
+            <button class="btn primary" onclick="submitNickname()">Join Leaderboard</button>
+        </div>
+    </div>
+
+    <script>
+        // ===== BACKEND CONFIGURATION =====
+        const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbwOrPXFSNSgqf_NWqO2lZIfsG2nUhQZxS7v31DVgillqRK_9PdLNHEHPeARFOSJ3DBwow/exec';
+        const SESSION_ID = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
+        // Game state
+        let currentLevel = 1;
+        let gameStartTime = Date.now();
+        let levelAnswers = ['', '', ''];
+        let minedBlocks = 0;
+        let completionTime = '';
+        let isOwner = false;
+
+        // Owner check
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('owner') === 'JNPR2024') {
+            isOwner = true;
+            console.log('🔓 Owner mode activated');
+        }
+
+        // Get anonymous user info
+        function getUserInfo() {
+            return {
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                language: navigator.language,
+                screenRes: `${screen.width}x${screen.height}`,
+                timestamp: new Date().toISOString()
+            };
+        }
+
+        // Send data to Google Sheets backend
+        async function sendToBackend(data) {
+            try {
+                await fetch(BACKEND_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ...data,
+                        userInfo: JSON.stringify(getUserInfo()),
+                        sessionId: SESSION_ID
+                    })
+                });
+                console.log('✅ Data sent to backend');
+                return true;
+            } catch (error) {
+                console.error('❌ Backend error:', error);
+                let offlineData = JSON.parse(localStorage.getItem('jnpr_offline_data') || '[]');
+                offlineData.push({ ...data, timestamp: new Date().toISOString() });
+                localStorage.setItem('jnpr_offline_data', JSON.stringify(offlineData));
+                return false;
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadLeaderboard();
+            loadContactList();
+            document.getElementById('shareLink').value = window.location.href.split('?')[0];
+            syncOfflineData();
+        });
+
+        // Sync offline data
+        async function syncOfflineData() {
+            if (!navigator.onLine) return;
+            const offlineData = JSON.parse(localStorage.getItem('jnpr_offline_data') || '[]');
+            if (offlineData.length > 0) {
+                console.log(`📤 Syncing ${offlineData.length} offline records...`);
+                for (const data of offlineData) {
+                    await sendToBackend(data);
+                }
+                localStorage.removeItem('jnpr_offline_data');
+                console.log('✅ Offline data synced');
+            }
+        }
+
+        function startChallenge() {
+            gameStartTime = Date.now();
+            showPage('challenge');
+        }
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function showLevel(level) {
+            document.querySelectorAll('.challenge-container').forEach(c => c.classList.remove('active'));
+            if (level <= 3) {
+                document.getElementById(`level${level}`).classList.add('active');
+                document.getElementById('currentLevel').textContent = level;
+            }
+        }
+
+        function nextLevel() {
+            if (currentLevel < 3) {
+                currentLevel++;
+                showLevel(currentLevel);
+            }
+        }
+
+        function prevLevel() {
+            if (currentLevel > 1) {
+                currentLevel--;
+                showLevel(currentLevel);
+            }
+        }
+
+        async function checkLevel(level) {
+            const input = document.getElementById(`level${level}Input`);
+            const userAnswer = input.value.toUpperCase();
+            
+            let correctAnswer = '';
+            if (level === 1) correctAnswer = 'N'; // Network
+            if (level === 2) correctAnswer = 'S'; // Security  
+            if (level === 3) correctAnswer = 'B'; // Blockchain
+            
+            const isCorrect = userAnswer === correctAnswer;
+            
+            // Send attempt to backend
+            await sendToBackend({
+                action: 'attempt',
+                level: level,
+                answer: userAnswer,
+                correct: isCorrect
+            });
+            
+            if (isCorrect) {
+                levelAnswers[level - 1] = correctAnswer;
+                if (level < 3) {
+                    alert(`✅ Level ${level} completed! Moving to next level...`);
+                    currentLevel = level + 1;
+                    showLevel(currentLevel);
+                } else {
+                    const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
+                    const minutes = Math.floor(elapsed / 60);
+                    const seconds = elapsed % 60;
+                    completionTime = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                    document.getElementById('nicknameModal').style.display = 'flex';
+                }
+            } else {
+                alert('❌ Incorrect answer. Try again!');
+                input.value = '';
+            }
+        }
+
+        function spinWheel() {
+            const wheel = document.querySelector('.cipher-wheel');
+            wheel.style.transform = 'rotate(720deg)';
+            setTimeout(() => wheel.style.transform = 'rotate(0deg)', 1000);
+        }
+
+        function mineBlock(blockIndex) {
+            const blocks = document.querySelectorAll('.block');
+            if (blocks[blockIndex].classList.contains('mined')) return;
+            
+            blocks[blockIndex].classList.add('mined');
+            blocks[blockIndex].innerHTML = `
+                <strong>Block #${blockIndex}</strong><br>
+                <small style="color: #00ff00;">✓ MINED</small><br>
+                <small>Hash: 00abc${blockIndex}def...</small>
+            `;
+            minedBlocks++;
+            
+            if (minedBlocks === 3) {
+                setTimeout(() => {
+                    alert('🎉 All blocks mined! The answer is the first letter of "Blockchain" = B');
+                }, 500);
+            }
+        }
+
+        async function submitNickname() {
+            const nickname = document.getElementById('nicknameInput').value.toUpperCase().trim();
+            
+            if (nickname.length !== 4) {
+                alert('Nickname must be exactly 4 characters!');
+                return;
+            }
+            
+            const leaderboard = JSON.parse(localStorage.getItem('jnpr_leaderboard') || '[]');
+            if (leaderboard.some(entry => entry.nickname === nickname)) {
+                alert('❌ Nickname already taken! Choose a different one.');
+                return;
+            }
+            
+            const finalKey = levelAnswers.join('') + 'JNPR';
+            
+            // Send to backend
+            await sendToBackend({
+                action: 'leaderboard',
+                nickname: nickname,
+                time: completionTime,
+                key: finalKey
+            });
+            
+            localStorage.setItem('jnpr_nickname', nickname);
+            addToLeaderboard(nickname, completionTime);
+            document.getElementById('nicknameModal').style.display = 'none';
+            showPage('homepage');
+            showCompletionCelebration(nickname);
+        }
+
+        function addToLeaderboard(nickname, time) {
+            let leaderboard = JSON.parse(localStorage.getItem('jnpr_leaderboard') || '[]');
+            leaderboard.push({
+                nickname: nickname,
+                time: time,
+                timestamp: new Date().toISOString(),
+                key: levelAnswers.join('') + 'JNPR'
+            });
+            leaderboard.sort((a, b) => {
+                const timeToSeconds = (timeStr) => {
+                    const [mins, secs] = timeStr.split(':').map(Number);
+                    return mins * 60 + secs;
+                };
+                return timeToSeconds(a.time) - timeToSeconds(b.time);
+            });
+            leaderboard = leaderboard.slice(0, 10);
+            localStorage.setItem('jnpr_leaderboard', JSON.stringify(leaderboard));
+            loadLeaderboard();
+        }
+
+        function loadLeaderboard() {
+            const leaderboard = JSON.parse(localStorage.getItem('jnpr_leaderboard') || '[]');
+            const leaderboardEl = document.getElementById('leaderboard');
+            
+            if (leaderboard.length === 0) {
+                leaderboardEl.innerHTML = `
+                    <div style="text-align: center; color: #666; padding: 20px;">
+                        No completions yet. Be the first to crack the challenge! 🚀
+                    </div>
+                `;
+                return;
+            }
+            
+            leaderboardEl.innerHTML = leaderboard.map((entry, index) => `
+                <div class="leaderboard-item">
+                    <div class="leaderboard-rank">#${index + 1}</div>
+                    <div class="leaderboard-name">${entry.nickname}</div>
+                    <div class="leaderboard-time">${entry.time}</div>
+                </div>
+            `).join('');
+        }
+
+        // Email validation
+        function isValidEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        // Phone validation (basic)
+        function isValidPhone(phone) {
+            const re = /^[\d\s\+\-\(\)]+$/;
+            return re.test(phone) && phone.replace(/\D/g, '').length >= 10;
+        }
+
+        async function submitRegistration() {
+            const name = document.getElementById('userName').value.trim();
+            const email = document.getElementById('userEmail').value.trim();
+            const studentId = document.getElementById('userID').value.trim();
+            const phone = document.getElementById('userPhone').value.trim();
+            const additional = document.getElementById('userAdditional').value.trim();
+            const key = document.getElementById('userKey').value.trim();
+            
+            // Validation
+            let hasError = false;
+            
+            if (!name) {
+                document.getElementById('userName').classList.add('error');
+                hasError = true;
+            } else {
+                document.getElementById('userName').classList.remove('error');
+            }
+            
+            if (!email || !isValidEmail(email)) {
+                document.getElementById('userEmail').classList.add('error');
+                hasError = true;
+            } else {
+                document.getElementById('userEmail').classList.remove('error');
+            }
+            
+            if (!studentId) {
+                document.getElementById('userID').classList.add('error');
+                hasError = true;
+            } else {
+                document.getElementById('userID').classList.remove('error');
+            }
+            
+            if (!phone || !isValidPhone(phone)) {
+                document.getElementById('userPhone').classList.add('error');
+                hasError = true;
+            } else {
+                document.getElementById('userPhone').classList.remove('error');
+            }
+            
+            if (hasError) {
+                alert('❌ Please fill in all required fields correctly!');
+                return;
+            }
+            
+            const validKeys = ['NSBJNPR'];
+            const isValidKey = validKeys.includes(key.toUpperCase());
+            
+            // Send to backend
+            await sendToBackend({
+                action: 'registration',
+                name: name,
+                email: email,
+                studentId: studentId,
+                phone: phone,
+                additional: additional || 'N/A',
+                key: key || 'Not provided',
+                isValidKey: isValidKey
+            });
+            
+            addToContactList(name, email, studentId, phone, additional, key, isValidKey);
+            
+            // Clear form
+            document.getElementById('userName').value = '';
+            document.getElementById('userEmail').value = '';
+            document.getElementById('userID').value = '';
+            document.getElementById('userPhone').value = '';
+            document.getElementById('userAdditional').value = '';
+            document.getElementById('userKey').value = '';
+            
+            if (isValidKey) {
+                alert('🎉 Registration successful! Valid challenge completion detected!\nWe will contact you soon for the team formation.');
+            } else {
+                alert('✅ Registration successful!\nComplete the challenge to get priority consideration for the team.');
+            }
+        }
+
+        function addToContactList(name, email, studentId, phone, additional, key, isValidKey) {
+            let contacts = JSON.parse(localStorage.getItem('jnpr_contacts') || '[]');
+            contacts.push({
+                name: name,
+                email: email,
+                studentId: studentId,
+                phone: phone,
+                additional: additional,
+                key: key,
+                isValidKey: isValidKey,
+                timestamp: new Date().toISOString()
+            });
+            contacts = contacts.slice(-20);
+            localStorage.setItem('jnpr_contacts', JSON.stringify(contacts));
+            loadContactList();
+        }
+
+        function loadContactList() {
+            const contacts = JSON.parse(localStorage.getItem('jnpr_contacts') || '[]');
+            const contactListEl = document.getElementById('contactList');
+            
+            if (contacts.length === 0) {
+                contactListEl.innerHTML = `
+                    <div style="text-align: center; color: #666; padding: 20px;">
+                        No registrations yet. Be the first to join the team! 🚀
+                    </div>
+                `;
+                return;
+            }
+            
+            contactListEl.innerHTML = contacts.reverse().map(contact => {
+                const showContact = isOwner || contact.isValidKey;
+                const keyStatus = contact.key && contact.key !== 'Not provided' ? (contact.isValidKey ? '🔑' : '❌') : '';
+                
+                return `
+                    <div class="contact-item">
+                        <div class="contact-name">${contact.name} ${keyStatus}</div>
+                        <div class="contact-detail">
+                            <span>Email:</span>
+                            <span class="${showContact ? 'contact-info' : 'contact-hidden'}">
+                                ${showContact ? contact.email : '***@***.edu'}
+                            </span>
+                        </div>
+                        <div class="contact-detail">
+                            <span>Student ID:</span>
+                            <span class="${showContact ? 'contact-info' : 'contact-hidden'}">
+                                ${showContact ? contact.studentId : '****-***'}
+                            </span>
+                        </div>
+                        <div class="contact-detail">
+                            <span>Phone:</span>
+                            <span class="${showContact ? 'contact-info' : 'contact-hidden'}">
+                                ${showContact ? contact.phone : '+880 ****-****'}
+                            </span>
+                        </div>
+                        ${contact.additional && contact.additional !== 'N/A' ? `
+                        <div class="contact-detail">
+                            <span>Additional:</span>
+                            <span class="${showContact ? 'contact-info' : 'contact-hidden'}">
+                                ${showContact ? contact.additional : '***'}
+                            </span>
+                        </div>
+                        ` : ''}
+                        ${contact.key && contact.key !== 'Not provided' ? `
+                        <div class="contact-info" style="font-size: 10px; color: #666; margin-top: 5px;">
+                            Key Status: ${contact.isValidKey ? '✓ Valid Completion' : '✗ Invalid'}
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function copyShareLink() {
+            const shareLink = document.getElementById('shareLink');
+            shareLink.select();
+            shareLink.setSelectionRange(0, 99999);
+            
+            try {
+                document.execCommand('copy');
+                alert('🔗 Share link copied to clipboard!');
+            } catch (err) {
+                alert('📋 Please manually copy the link: ' + shareLink.value);
+            }
+        }
+
+        function showCompletionCelebration(nickname) {
+            const celebration = document.createElement('div');
+            celebration.style.cssText = `
+                position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #1a0a2e, #16213e);
+                border: 2px solid #00ff00; border-radius: 15px; padding: 30px;
+                text-align: center; z-index: 10001; color: #00ff00;
+                font-family: 'Courier New', monospace; max-width: 500px;
+            `;
+            
+            celebration.innerHTML = `
+                <h2 style="color: #ff6b6b; margin-bottom: 20px;">🎊 CHALLENGE MASTERED! 🎊</h2>
+                <p style="margin: 15px 0;">Codename: <strong style="color: #4ecdc4;">${nickname}</strong></p>
+                <p style="margin: 15px 0;">Time: <strong style="color: #ffaa00;">${completionTime}</strong></p>
+                <p style="margin: 15px 0;">Secret Key: <strong style="color: #00ff00;">${levelAnswers.join('') + 'JNPR'}</strong></p>
+                <div style="margin: 20px 0; padding: 15px; border: 1px dashed #4ecdc4; border-radius: 5px;">
+                    <p style="color: #4ecdc4; margin-bottom: 10px;">🚀 Next Steps:</p>
+                    <p style="font-size: 14px;">1. Register below with your university details</p>
+                    <p style="font-size: 14px;">2. Share challenge with interested friends</p>
+                    <p style="font-size: 14px;">3. Wait for team formation contact!</p>
+                </div>
+                <button onclick="this.parentElement.remove()" style="
+                    background: #ff6b6b; border: none; color: white; padding: 10px 20px;
+                    border-radius: 5px; cursor: pointer; font-family: 'Courier New', monospace;
+                ">Continue to Dashboard</button>
+            `;
+            
+            document.body.appendChild(celebration);
+        }
+
+        // Anti-cheat measures
+        setInterval(() => console.clear(), 2000);
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' || 
+                (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+                (e.ctrlKey && e.key === 'u') ||
+                (e.ctrlKey && e.key === 's')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // Admin panel for owner
+        if (isOwner) {
+            const adminPanel = document.createElement('div');
+            adminPanel.style.cssText = `
+                position: fixed; top: 70px; right: 20px;
+                background: rgba(255, 0, 0, 0.1); border: 1px solid #ff6b6b;
+                padding: 15px; border-radius: 5px; z-index: 1000;
+                font-size: 12px; max-width: 200px;
+            `;
+            adminPanel.innerHTML = `
+                <strong style="color: #ff6b6b;">🔧 ADMIN PANEL</strong><br>
+                <button onclick="clearAllData()" style="
+                    background: #ff6b6b; border: none; color: white;
+                    padding: 5px 10px; border-radius: 3px; margin: 5px 0;
+                    cursor: pointer; font-size: 11px; width: 100%;
+                ">Clear All Data</button><br>
+                <button onclick="exportData()" style="
+                    background: #4ecdc4; border: none; color: white;
+                    padding: 5px 10px; border-radius: 3px; margin: 5px 0;
+                    cursor: pointer; font-size: 11px; width: 100%;
+                ">Export Data</button><br>
+                <button onclick="viewGoogleSheet()" style="
+                    background: #00ff00; border: none; color: black;
+                    padding: 5px 10px; border-radius: 3px; margin: 5px 0;
+                    cursor: pointer; font-size: 11px; width: 100%;
+                ">Open Google Sheet</button>
+            `;
+            document.body.appendChild(adminPanel);
+        }
+
+        function clearAllData() {
+            if (confirm('⚠️ Clear all local leaderboard and contact data?')) {
+                localStorage.removeItem('jnpr_leaderboard');
+                localStorage.removeItem('jnpr_contacts');
+                localStorage.removeItem('jnpr_progress');
+                localStorage.removeItem('jnpr_nickname');
+                location.reload();
+            }
+        }
+
+        function exportData() {
+            const data = {
+                leaderboard: JSON.parse(localStorage.getItem('jnpr_leaderboard') || '[]'),
+                contacts: JSON.parse(localStorage.getItem('jnpr_contacts') || '[]'),
+                exportTime: new Date().toISOString(),
+                totalCompletions: JSON.parse(localStorage.getItem('jnpr_leaderboard') || '[]').length,
+                totalRegistrations: JSON.parse(localStorage.getItem('jnpr_contacts') || '[]').length
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `jnpr-challenge-data-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            alert('✅ Data exported! Check your downloads folder.');
+        }
+
+        function viewGoogleSheet() {
+            alert('📊 Open your Google Sheet to view all backend data.\n\nNote: You need to access the Google Sheet directly where you set up the Apps Script.');
+        }
+    </script>
+</body>
+</html>
