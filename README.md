@@ -11,7 +11,7 @@
 
 ## 🚀 Live Demo
 
-**Challenge URL:** ([https://whitesoulx.github.io/Jnpr/](https://whitesoulx.github.io/Juniper-City_OpenChallenge/))
+**Challenge URL:** ((https://whitesoulx.github.io/Juniper-City_OpenChallenge/))
 
 **Owner Dashboard:** Add `?owner=JNPR2024` to URL for admin access
 
